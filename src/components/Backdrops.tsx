@@ -46,12 +46,12 @@ export function Backdrops() {
 
     if (matA.current) {
       matA.current.map = texA
-      matA.current.opacity = texA ? (1 - t) * 0.92 : 0
+      matA.current.opacity = texA ? (1 - t) * 0.85 : 0
       matA.current.needsUpdate = true
     }
     if (matB.current) {
       matB.current.map = texB
-      matB.current.opacity = texB ? t * 0.92 : 0
+      matB.current.opacity = texB ? t * 0.85 : 0
       matB.current.needsUpdate = true
     }
     /* subtle counter-parallax for depth */
@@ -63,11 +63,11 @@ export function Backdrops() {
     <group ref={rig as any}>
       <mesh renderOrder={-20}>
         <planeGeometry args={[260, 100]} />
-        <meshBasicMaterial ref={matA} transparent opacity={0} depthWrite={false} depthTest={false} fog={false} color="#b8b4b0" toneMapped={false} />
+        <meshBasicMaterial ref={matA} transparent opacity={0} depthWrite={false} depthTest={true} fog={false} color="#8f8b88" toneMapped={false} />
       </mesh>
       <mesh renderOrder={-19}>
         <planeGeometry args={[260, 100]} />
-        <meshBasicMaterial ref={matB} transparent opacity={0} depthWrite={false} depthTest={false} fog={false} color="#b8b4b0" toneMapped={false} />
+        <meshBasicMaterial ref={matB} transparent opacity={0} depthWrite={false} depthTest={true} fog={false} color="#8f8b88" toneMapped={false} />
       </mesh>
     </group>
   )

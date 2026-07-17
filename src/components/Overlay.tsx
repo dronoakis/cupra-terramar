@@ -24,7 +24,6 @@ export function Overlay() {
   const ambientColor = useApp((s) => s.ambientColor)
   const setAmbientColor = useApp((s) => s.setAmbientColor)
   const toggleDoors = useApp((s) => s.toggleDoors)
-  const triggerExplode = useApp((s) => s.triggerExplode)
   const toggleOrbit = useApp((s) => s.toggleOrbit)
   const autoOrbit = useApp((s) => s.autoOrbit)
   const doorsOpen = useApp((s) => s.doorsOpen)
@@ -144,7 +143,6 @@ export function Overlay() {
           <div className="chips">
             <button className={'chip' + (autoOrbit ? ' sel' : '')} onClick={toggleOrbit}>Auto-orbit</button>
             <button className={'chip' + (doorsOpen ? ' sel' : '')} onClick={toggleDoors}>Doors</button>
-            <button className="chip" onClick={triggerExplode}>Explode</button>
           </div>
         </div>
       </aside>

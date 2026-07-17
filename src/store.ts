@@ -9,7 +9,6 @@ interface AppState {
   bodyColor: string
   ambientColor: string
   doorsOpen: boolean
-  explodeSignal: number   // increment to trigger manual explode
   autoOrbit: boolean
   cfgOpen: boolean
   jumpTo: number | null   // request scroll jump to phase index
@@ -19,7 +18,6 @@ interface AppState {
   setBodyColor: (v: string) => void
   setAmbientColor: (v: string) => void
   toggleDoors: () => void
-  triggerExplode: () => void
   toggleOrbit: () => void
   setCfgOpen: (v: boolean) => void
   setJumpTo: (v: number | null) => void
@@ -32,7 +30,6 @@ export const useApp = create<AppState>((set) => ({
   bodyColor: '#4a2b52',
   ambientColor: '#c8703b',
   doorsOpen: false,
-  explodeSignal: 0,
   autoOrbit: false,
   cfgOpen: false,
   jumpTo: null,
@@ -42,7 +39,6 @@ export const useApp = create<AppState>((set) => ({
   setBodyColor: (v) => set({ bodyColor: v }),
   setAmbientColor: (v) => set({ ambientColor: v }),
   toggleDoors: () => set((s) => ({ doorsOpen: !s.doorsOpen })),
-  triggerExplode: () => set((s) => ({ explodeSignal: s.explodeSignal + 1 })),
   toggleOrbit: () => set((s) => ({ autoOrbit: !s.autoOrbit })),
   setCfgOpen: (v) => set({ cfgOpen: v }),
   setJumpTo: (v) => set({ jumpTo: v }),

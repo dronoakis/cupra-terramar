@@ -7,8 +7,6 @@ import { useApp } from '../store'
 
 const MODEL_URL = '/cupra-terramar.glb'
 
-interface Explodable { mesh: THREE.Object3D; home: THREE.Vector3; dir: THREE.Vector3; mag: number }
-
 export function CarModel() {
   const group = useRef<THREE.Group>(null!)
   const gltf = useGLTF(MODEL_URL, undefined, undefined, (loader: any) => {
@@ -18,7 +16,6 @@ export function CarModel() {
 
   const bodyColor = useApp((s) => s.bodyColor)
   const doorsOpen = useApp((s) => s.doorsOpen)
-  const explodeSignal = useApp((s) => s.explodeSignal)
   const autoOrbit = useApp((s) => s.autoOrbit)
   const started = useApp((s) => s.started)
   const setReady = useApp((s) => s.setReady)
@@ -26,10 +23,8 @@ export function CarModel() {
   const paintMats = useRef<THREE.MeshPhysicalMaterial[]>([])
   const drlWhite = useRef<THREE.MeshStandardMaterial[]>([])
   const drlRed = useRef<THREE.MeshStandardMaterial[]>([])
-  const explodables = useRef<Explodable[]>([])
   const targetColor = useRef(new THREE.Color(bodyColor))
   const rimFlash = useRef(0)
-  const explodeT = useRef(-1)
 
   /* one-time setup: normalize, collect materials, register explodables */
   useMemo(() => {
@@ -63,16 +58,6 @@ export function CarModel() {
     const c2 = b2.getCenter(new THREE.Vector3())
     root.position.set(-c2.x, -b2.min.y, -c2.z)
 
-    /* explodables */
-    const center = b2.getCenter(new THREE.Vector3())
-    root.traverse((o: any) => {
-      if (!o.isMesh) return
-      const wp = o.getWorldPosition(new THREE.Vector3())
-      const dir = wp.sub(center)
-      if (dir.length() < 0.001) dir.set(Math.random() - 0.5, Math.random(), Math.random() - 0.5)
-      dir.normalize()
-      explodables.current.push({ mesh: o, home: o.position.clone(), dir, mag: 0.7 + Math.random() })
-    })
   }, [gltf])
 
   useEffect(() => { setReady(true) }, [setReady])
@@ -96,9 +81,6 @@ export function CarModel() {
     })
   }, [doorsOpen, actions])
 
-  /* manual explode trigger */
-  useEffect(() => { if (explodeSignal > 0) explodeT.current = 0 }, [explodeSignal])
-
   useFrame((state, dt) => {
     const d = Math.min(dt, 0.05)
     /* paint lerp */
@@ -112,19 +94,6 @@ export function CarModel() {
     const v = Math.max(night, ign * THREE.MathUtils.clamp(1 - p * 2, 0.35, 1))
     drlWhite.current.forEach((m) => (m.emissiveIntensity = v * 2.2))
     drlRed.current.forEach((m) => (m.emissiveIntensity = v * 1.6))
-
-    /* explode: scroll-driven near finale + manual */
-    let ex = 0
-    if (p > 4.55) {
-      ex = THREE.MathUtils.clamp((p - 4.55) / 0.35, 0, 1)
-      if (p > 4.9) ex *= THREE.MathUtils.clamp(1 - (p - 4.9) * 2.2, 0, 1)
-    }
-    if (explodeT.current >= 0) {
-      explodeT.current += d / 2.6
-      if (explodeT.current >= 1) explodeT.current = -1
-      else ex = Math.max(ex, Math.sin(explodeT.current * Math.PI))
-    }
-    explodables.current.forEach((o) => o.mesh.position.copy(o.home).addScaledVector(o.dir, ex * o.mag))
 
     /* idle sway before start / auto orbit */
     if (!started) group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.15
