@@ -65,15 +65,29 @@ export function CarModel() {
 
   useEffect(() => {
     setReady(true)
-    /* nose direction = from tail-light centroid toward headlight centroid (unambiguous) */
-    if (drlMeshes.current.length && tailMeshes.current.length) {
-      const w = new THREE.Vector3(), r = new THREE.Vector3(), tmp = new THREE.Vector3()
-      drlMeshes.current.forEach((o) => w.add(o.getWorldPosition(tmp)))
-      w.divideScalar(drlMeshes.current.length)
-      tailMeshes.current.forEach((o) => r.add(o.getWorldPosition(tmp)))
-      r.divideScalar(tailMeshes.current.length)
-      const d = w.sub(r); d.y = 0; d.normalize()
-      useApp.getState().setFrontPos([d.x, 0, d.z])
+    /* cabin camera pose from named anchor nodes: steering wheel, both front seats, headlight */
+    const root: THREE.Object3D = gltf.scene
+    root.updateMatrixWorld(true)
+    const centerOf = (...names: string[]) => {
+      for (const nm of names) {
+        const n = root.getObjectByName(nm)
+        if (n) return new THREE.Box3().setFromObject(n).getCenter(new THREE.Vector3())
+      }
+      return null
+    }
+    const sw = centerOf('Combined_ALIAS_SteeringWheel', 'ALIAS_SteeringWheel')
+    const fl = centerOf('Combined_ALIAS_Seat_FL', 'ALIAS_Seat_FL')
+    const fr = centerOf('Combined_ALIAS_Seat_FR', 'ALIAS_Seat_FR')
+    const hl = centerOf('Combined_ALIAS_Headlight', 'ALIAS_Headlight')
+    if (sw && fl && fr && hl) {
+      const seatMid = fl.clone().add(fr).multiplyScalar(0.5)
+      const fwd = hl.clone().sub(seatMid); fwd.y = 0; fwd.normalize()
+      const camY = sw.y + 0.32                    // just above the wheel rim, at headrest level
+      const tgt = seatMid.clone().addScaledVector(fwd, 2.2)
+      useApp.getState().setCabinPose({
+        pos: [seatMid.x, camY, seatMid.z],
+        tgt: [tgt.x, sw.y - 0.26, tgt.z],         // pitched down onto the dash
+      })
     }
   }, [setReady])
 

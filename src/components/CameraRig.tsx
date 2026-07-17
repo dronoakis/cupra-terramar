@@ -7,22 +7,20 @@ const CAM: Array<[[number, number, number], [number, number, number], number]> =
   [[0, 1.5, 7.6], [0, 1.0, 0], 38],
   [[5.2, 1.3, 4.4], [0, 0.95, 0], 34],
   [[-4.4, 1.0, 5.2], [0, 1.0, 0], 40],
-  [[-0.68, 1.42, 0], [2.2, 0.78, 0], 70],   // interior: matched to reference frame
+  [[0.02, 1.48, 0], [-2.18, 0.9, 0], 70],   // interior fallback (front = -X for this model)
   [[-5.6, 1.6, -3.2], [0, 1.0, 0], 34],
   [[0, 2.2, 6.6], [0, 0.95, 0], 42],
   [[0, 1.9, 8.8], [0, 1.0, 0], 36],
 ]
 
-const seatPos = new THREE.Vector3(-0.68, 1.42, 0)
-const seatTgt = new THREE.Vector3(2.2, 0.78, 0)
-function refineInterior(front: [number, number, number] | null) {
-  if (!front) return
-  const dir = new THREE.Vector3(front[0], 0, front[2]).normalize()
-  /* centered between the front seats, looking at the dashboard */
-  seatPos.copy(dir).multiplyScalar(-0.68).setY(1.42)
-  seatTgt.copy(dir).multiplyScalar(2.2).setY(0.78)
-  CAM[3][0] = [seatPos.x, seatPos.y, seatPos.z]
-  CAM[3][1] = [seatTgt.x, seatTgt.y, seatTgt.z]
+const seatPos = new THREE.Vector3(0.02, 1.48, 0)
+const seatTgt = new THREE.Vector3(-2.18, 0.9, 0)
+function refineInterior(pose: { pos: [number, number, number]; tgt: [number, number, number] } | null) {
+  if (!pose) return
+  seatPos.fromArray(pose.pos)
+  seatTgt.fromArray(pose.tgt)
+  CAM[3][0] = pose.pos
+  CAM[3][1] = pose.tgt
 }
 
 const vPos = new THREE.Vector3(), vTgt = new THREE.Vector3()
@@ -80,7 +78,7 @@ export function CameraRig() {
     if (s.started && !startedPrev.current) { startedPrev.current = true; introT.current = 0 }
     if (introT.current >= 0 && introT.current < 1) introT.current = Math.min(1, introT.current + dt / 2.4)
 
-    refineInterior(s.frontPos)
+    refineInterior(s.cabinPose)
 
     /* fast scrolling disables the interior freeze so the camera never feels stuck */
     const speed = Math.abs(p - prevP.current) / Math.max(dt, 0.001)

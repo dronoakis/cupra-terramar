@@ -13,6 +13,7 @@ interface AppState {
   interiorMode: boolean
   looked: boolean
   frontPos: [number, number, number] | null
+  cabinPose: { pos: [number, number, number]; tgt: [number, number, number] } | null
   cfgOpen: boolean
   jumpTo: number | null   // request scroll jump to phase index
   setReady: (v: boolean) => void
@@ -25,6 +26,7 @@ interface AppState {
   toggleInterior: () => void
   setLooked: (v: boolean) => void
   setFrontPos: (v: [number, number, number]) => void
+  setCabinPose: (v: { pos: [number, number, number]; tgt: [number, number, number] }) => void
   setCfgOpen: (v: boolean) => void
   setJumpTo: (v: number | null) => void
 }
@@ -40,6 +42,7 @@ export const useApp = create<AppState>((set) => ({
   interiorMode: false,
   looked: false,
   frontPos: null,
+  cabinPose: null,
   cfgOpen: false,
   jumpTo: null,
   setReady: (v) => set({ ready: v }),
@@ -52,6 +55,7 @@ export const useApp = create<AppState>((set) => ({
   toggleInterior: () => set((s) => ({ interiorMode: !s.interiorMode })),
   setLooked: (v) => set({ looked: v }),
   setFrontPos: (v) => set({ frontPos: v }),
+  setCabinPose: (v) => set({ cabinPose: v }),
   setCfgOpen: (v) => set({ cfgOpen: v }),
   setJumpTo: (v) => set({ jumpTo: v }),
 }))
