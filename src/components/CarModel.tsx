@@ -1,0 +1,144 @@
+import { useEffect, useMemo, useRef } from 'react'
+import * as THREE from 'three'
+import { useFrame } from '@react-three/fiber'
+import { useGLTF, useAnimations } from '@react-three/drei'
+import { MeshoptDecoder } from 'three-stdlib'
+import { useApp } from '../store'
+
+const MODEL_URL = '/cupra-terramar.glb'
+
+interface Explodable { mesh: THREE.Object3D; home: THREE.Vector3; dir: THREE.Vector3; mag: number }
+
+export function CarModel() {
+  const group = useRef<THREE.Group>(null!)
+  const gltf = useGLTF(MODEL_URL, undefined, undefined, (loader: any) => {
+    loader.setMeshoptDecoder(MeshoptDecoder)
+  }) as any
+  const { actions, mixer } = useAnimations(gltf.animations, group)
+
+  const bodyColor = useApp((s) => s.bodyColor)
+  const doorsOpen = useApp((s) => s.doorsOpen)
+  const explodeSignal = useApp((s) => s.explodeSignal)
+  const autoOrbit = useApp((s) => s.autoOrbit)
+  const started = useApp((s) => s.started)
+  const setReady = useApp((s) => s.setReady)
+
+  const paintMats = useRef<THREE.MeshPhysicalMaterial[]>([])
+  const drlWhite = useRef<THREE.MeshStandardMaterial[]>([])
+  const drlRed = useRef<THREE.MeshStandardMaterial[]>([])
+  const explodables = useRef<Explodable[]>([])
+  const targetColor = useRef(new THREE.Color(bodyColor))
+  const rimFlash = useRef(0)
+  const explodeT = useRef(-1)
+
+  /* one-time setup: normalize, collect materials, register explodables */
+  useMemo(() => {
+    const root: THREE.Object3D = gltf.scene
+    root.traverse((o: any) => {
+      if (!o.isMesh) return
+      const mats: THREE.Material[] = Array.isArray(o.material) ? o.material : [o.material]
+      mats.forEach((m: any) => {
+        if (!m) return
+        const n = (m.name || '').toLowerCase()
+        if (n.includes('carpaint')) {
+          m.clearcoat = 1
+          m.clearcoatRoughness = 0.06
+          m.envMapIntensity = 1.5
+          if (!paintMats.current.includes(m)) paintMats.current.push(m)
+        }
+        if (n.includes('glass')) m.envMapIntensity = 1.4
+        if (n.includes('lightswhite')) { m.emissive = new THREE.Color('#ffe9c4'); m.emissiveIntensity = 0; drlWhite.current.push(m) }
+        if (n.includes('lightsred')) { m.emissive = new THREE.Color('#ff2020'); m.emissiveIntensity = 0; drlRed.current.push(m) }
+      })
+    })
+
+    /* center & scale to length 5, sit on ground */
+    root.updateMatrixWorld(true)
+    const box = new THREE.Box3().setFromObject(root)
+    const size = box.getSize(new THREE.Vector3())
+    const s = 5 / Math.max(size.x, size.y, size.z)
+    root.scale.setScalar(s)
+    root.updateMatrixWorld(true)
+    const b2 = new THREE.Box3().setFromObject(root)
+    const c2 = b2.getCenter(new THREE.Vector3())
+    root.position.set(-c2.x, -b2.min.y, -c2.z)
+
+    /* explodables */
+    const center = b2.getCenter(new THREE.Vector3())
+    root.traverse((o: any) => {
+      if (!o.isMesh) return
+      const wp = o.getWorldPosition(new THREE.Vector3())
+      const dir = wp.sub(center)
+      if (dir.length() < 0.001) dir.set(Math.random() - 0.5, Math.random(), Math.random() - 0.5)
+      dir.normalize()
+      explodables.current.push({ mesh: o, home: o.position.clone(), dir, mag: 0.7 + Math.random() })
+    })
+  }, [gltf])
+
+  useEffect(() => { setReady(true) }, [setReady])
+
+  /* body color: cinematic transition target */
+  useEffect(() => {
+    targetColor.current.set(bodyColor)
+    rimFlash.current = 1
+  }, [bodyColor])
+
+  /* doors */
+  useEffect(() => {
+    Object.values(actions).forEach((a: any) => {
+      if (!a) return
+      a.clampWhenFinished = true
+      a.setLoop(THREE.LoopOnce, 1)
+      a.paused = false
+      a.timeScale = doorsOpen ? 1 : -1
+      if (doorsOpen) { a.reset(); a.play() }
+      else { a.play(); if (a.time === 0) a.time = a.getClip().duration }
+    })
+  }, [doorsOpen, actions])
+
+  /* manual explode trigger */
+  useEffect(() => { if (explodeSignal > 0) explodeT.current = 0 }, [explodeSignal])
+
+  useFrame((state, dt) => {
+    const d = Math.min(dt, 0.05)
+    /* paint lerp */
+    paintMats.current.forEach((m) => m.color.lerp(targetColor.current, Math.min(1, d * 3)))
+    if (rimFlash.current > 0) rimFlash.current = Math.max(0, rimFlash.current - d * 0.7)
+
+    /* DRL: night phases + after ignition */
+    const p = useApp.getState().progress
+    const night = THREE.MathUtils.clamp((p - 2.4) / 0.8, 0, 1)
+    const ign = started ? 1 : 0
+    const v = Math.max(night, ign * THREE.MathUtils.clamp(1 - p * 2, 0.35, 1))
+    drlWhite.current.forEach((m) => (m.emissiveIntensity = v * 2.2))
+    drlRed.current.forEach((m) => (m.emissiveIntensity = v * 1.6))
+
+    /* explode: scroll-driven near finale + manual */
+    let ex = 0
+    if (p > 4.55) {
+      ex = THREE.MathUtils.clamp((p - 4.55) / 0.35, 0, 1)
+      if (p > 4.9) ex *= THREE.MathUtils.clamp(1 - (p - 4.9) * 2.2, 0, 1)
+    }
+    if (explodeT.current >= 0) {
+      explodeT.current += d / 2.6
+      if (explodeT.current >= 1) explodeT.current = -1
+      else ex = Math.max(ex, Math.sin(explodeT.current * Math.PI))
+    }
+    explodables.current.forEach((o) => o.mesh.position.copy(o.home).addScaledVector(o.dir, ex * o.mag))
+
+    /* idle sway before start / auto orbit */
+    if (!started) group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.15
+    else if (autoOrbit) group.current.rotation.y += d * 0.25
+  })
+
+  /* expose rim flash for lights rig via store-free ref hack */
+  ;(CarModel as any).rimFlash = rimFlash
+
+  return (
+    <group ref={group}>
+      <primitive object={gltf.scene} />
+    </group>
+  )
+}
+
+useGLTF.preload(MODEL_URL, undefined, undefined, (loader: any) => loader.setMeshoptDecoder(MeshoptDecoder))
