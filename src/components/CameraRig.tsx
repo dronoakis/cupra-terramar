@@ -7,20 +7,20 @@ const CAM: Array<[[number, number, number], [number, number, number], number]> =
   [[0, 1.5, 7.6], [0, 1.0, 0], 38],
   [[5.2, 1.3, 4.4], [0, 0.95, 0], 34],
   [[-4.4, 1.0, 5.2], [0, 1.0, 0], 40],
-  [[-0.35, 1.24, 0.34], [2.5, 1.1, 0.2], 58],   // interior (refined dynamically from headlights)
+  [[-0.78, 1.28, 0.3], [2.6, 1.02, 0.14], 62],   // interior (refined dynamically from headlights)
   [[-5.6, 1.6, -3.2], [0, 1.0, 0], 34],
   [[0, 2.2, 6.6], [0, 0.95, 0], 42],
   [[0, 1.9, 8.8], [0, 1.0, 0], 36],
 ]
 
-const seatPos = new THREE.Vector3(-0.35, 1.24, 0.34)
-const seatTgt = new THREE.Vector3(2.5, 1.1, 0.2)
+const seatPos = new THREE.Vector3(-0.78, 1.28, 0.3)
+const seatTgt = new THREE.Vector3(2.6, 1.02, 0.14)
 function refineInterior(front: [number, number, number] | null) {
   if (!front) return
   const dir = new THREE.Vector3(front[0], 0, front[2]).normalize()
   const side = new THREE.Vector3(-dir.z, 0, dir.x) // driver side offset
-  seatPos.copy(dir).multiplyScalar(-0.45).addScaledVector(side, 0.34).setY(1.24)
-  seatTgt.copy(dir).multiplyScalar(2.6).addScaledVector(side, 0.15).setY(1.08)
+  seatPos.copy(dir).multiplyScalar(-0.78).addScaledVector(side, 0.3).setY(1.28)
+  seatTgt.copy(dir).multiplyScalar(2.6).addScaledVector(side, 0.13).setY(1.02)
   CAM[3][0] = [seatPos.x, seatPos.y, seatPos.z]
   CAM[3][1] = [seatTgt.x, seatTgt.y, seatTgt.z]
 }
@@ -53,6 +53,7 @@ export function CameraRig() {
       if (!interiorActive.current) return
       look.current.drag = true
       look.current.lx = e.clientX; look.current.ly = e.clientY
+      useApp.getState().setLooked(true)
     }
     const move = (e: PointerEvent) => {
       if (!look.current.drag || !interiorActive.current) return
@@ -78,7 +79,9 @@ export function CameraRig() {
     refineInterior(s.frontPos)
 
     const pc0 = dwellRemap(p)
+    const wasActive = interiorActive.current
     interiorActive.current = s.interiorMode || (p > 2.85 && p < 3.55)
+    if (wasActive && !interiorActive.current) s.setLooked(false)
 
     const i = Math.min(Math.floor(pc0), CAM.length - 2)
     const t = easeInOut(THREE.MathUtils.clamp(pc0 - i, 0, 1))
@@ -98,7 +101,7 @@ export function CameraRig() {
     if (s.interiorMode && s.started) {
       vPos.copy(seatPos)
       vTgt.copy(seatTgt)
-      fov = 58
+      fov = 62
     }
 
     /* mouse-look inside the cabin */

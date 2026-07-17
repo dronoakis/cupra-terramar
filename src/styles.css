@@ -94,6 +94,15 @@ body.cine .lb{height:5vh}
 .finale.in .fsub{opacity:1;transform:translateY(0)}
 
 
+
+.spin360{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:22;width:118px;height:118px;
+  display:flex;align-items:center;justify-content:center;color:var(--copper-b);
+  opacity:0;pointer-events:none;transition:opacity .7s,transform .7s;filter:drop-shadow(0 0 18px rgba(200,112,59,.4))}
+.spin360.show{opacity:.9;transform:translate(-50%,-50%) scale(1)}
+.spin360 .ring{position:absolute;inset:0;animation:rot360 5s linear infinite}
+.spin360 .deg{font-family:'Antonio',Impact,sans-serif;font-weight:600;font-size:26px;letter-spacing:.06em;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+@keyframes rot360{to{transform:rotate(360deg)}}
+
 .lookHint{position:fixed;left:50%;bottom:9vh;transform:translateX(-50%) translateY(14px);z-index:22;display:flex;align-items:center;gap:12px;
   background:rgba(10,10,12,.72);backdrop-filter:blur(12px);border:1px solid rgba(200,112,59,.5);color:#f2ede6;
   font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:12px 20px;border-radius:28px;

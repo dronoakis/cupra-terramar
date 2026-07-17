@@ -27,6 +27,7 @@ export function Overlay() {
   const toggleOrbit = useApp((s) => s.toggleOrbit)
   const toggleInterior = useApp((s) => s.toggleInterior)
   const interiorMode = useApp((s) => s.interiorMode)
+  const looked = useApp((s) => s.looked)
   const autoOrbit = useApp((s) => s.autoOrbit)
   const doorsOpen = useApp((s) => s.doorsOpen)
 
@@ -107,6 +108,13 @@ export function Overlay() {
       </nav>
       <div className="speed" style={{ width: `${(progress / (PHASES.length - 1)) * 100}%` }} />
       <div className={'cue' + (started && progress < 0.15 ? ' show' : '')}><span>Scroll</span><span className="bar" /></div>
+      <div className={'spin360' + (started && !looked && (interiorMode || (progress > 2.9 && progress < 3.55)) ? ' show' : '')} aria-hidden="true">
+        <svg viewBox="0 0 100 100" className="ring">
+          <path d="M 50 12 A 38 38 0 1 1 18 66" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <polygon points="12,58 26,64 16,76" fill="currentColor" />
+        </svg>
+        <span className="deg">360°</span>
+      </div>
       <button
         className={'lookHint' + (started && (interiorMode || (progress > 2.85 && progress < 3.55)) ? ' show' : '')}
         onClick={toggleInterior}

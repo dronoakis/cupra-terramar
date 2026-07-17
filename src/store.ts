@@ -11,6 +11,7 @@ interface AppState {
   doorsOpen: boolean
   autoOrbit: boolean
   interiorMode: boolean
+  looked: boolean
   frontPos: [number, number, number] | null
   cfgOpen: boolean
   jumpTo: number | null   // request scroll jump to phase index
@@ -22,6 +23,7 @@ interface AppState {
   toggleDoors: () => void
   toggleOrbit: () => void
   toggleInterior: () => void
+  setLooked: (v: boolean) => void
   setFrontPos: (v: [number, number, number]) => void
   setCfgOpen: (v: boolean) => void
   setJumpTo: (v: number | null) => void
@@ -36,6 +38,7 @@ export const useApp = create<AppState>((set) => ({
   doorsOpen: false,
   autoOrbit: false,
   interiorMode: false,
+  looked: false,
   frontPos: null,
   cfgOpen: false,
   jumpTo: null,
@@ -47,6 +50,7 @@ export const useApp = create<AppState>((set) => ({
   toggleDoors: () => set((s) => ({ doorsOpen: !s.doorsOpen })),
   toggleOrbit: () => set((s) => ({ autoOrbit: !s.autoOrbit })),
   toggleInterior: () => set((s) => ({ interiorMode: !s.interiorMode })),
+  setLooked: (v) => set({ looked: v }),
   setFrontPos: (v) => set({ frontPos: v }),
   setCfgOpen: (v) => set({ cfgOpen: v }),
   setJumpTo: (v) => set({ jumpTo: v }),
