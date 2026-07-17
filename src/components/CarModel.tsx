@@ -33,6 +33,7 @@ export function CarModel() {
     const root: THREE.Object3D = gltf.scene
     root.traverse((o: any) => {
       if (!o.isMesh) return
+      o.castShadow = true
       const mats: THREE.Material[] = Array.isArray(o.material) ? o.material : [o.material]
       mats.forEach((m: any) => {
         if (!m) return

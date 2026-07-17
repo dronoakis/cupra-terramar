@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { MeshReflectorMaterial } from '@react-three/drei'
 import { PHASES, easeInOut, useApp } from '../store'
 import { CarModel } from './CarModel'
 
@@ -17,6 +18,20 @@ export function Stage() {
   const groundMat = useRef<THREE.MeshStandardMaterial>(null!)
   const fogRef = useRef<THREE.FogExp2>(null!)
   const { gl, scene } = useThree()
+
+  const roughTex = useMemo(() => {
+    const c = document.createElement('canvas'); c.width = c.height = 512
+    const g = c.getContext('2d')!
+    const img = g.createImageData(512, 512)
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 150 + Math.random() * 105
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255
+    }
+    g.putImageData(img, 0, 0)
+    const t = new THREE.CanvasTexture(c)
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 6)
+    return t
+  }, [])
 
   const shadowTex = useMemo(() => {
     const c = document.createElement('canvas'); c.width = c.height = 256
@@ -64,15 +79,44 @@ export function Stage() {
     <>
       <fogExp2 ref={fogRef} attach="fog" args={['#0a0a0c', 0.014]} />
       <hemisphereLight ref={hemiRef} intensity={0.55} />
-      <directionalLight ref={keyRef} position={[5, 8, 6]} intensity={2.3} />
+      <directionalLight
+        ref={keyRef}
+        position={[5, 8, 6]}
+        intensity={2.3}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-near={1}
+        shadow-camera-far={30}
+        shadow-camera-left={-6}
+        shadow-camera-right={6}
+        shadow-camera-top={6}
+        shadow-camera-bottom={-6}
+        shadow-bias={-0.0004}
+      />
       <directionalLight ref={rimRef} position={[-6, 4, -6]} intensity={1.4} color="#c8703b" />
       <directionalLight ref={fillRef} position={[-4, 3, 7]} intensity={0.5} color="#88aaff" />
       <pointLight ref={ambARef} position={[2.6, 0.5, 2.6]} intensity={0} distance={9} decay={2} />
       <pointLight ref={ambBRef} position={[-2.6, 0.5, -2.6]} intensity={0} distance={9} decay={2} />
 
-      <mesh rotation-x={-Math.PI / 2} position-y={0}>
+      <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
         <circleGeometry args={[30, 64]} />
-        <meshStandardMaterial ref={groundMat} color="#0a0a0c" roughness={0.28} metalness={0.85} envMapIntensity={1} />
+        <MeshReflectorMaterial
+          ref={groundMat as any}
+          blur={[280, 90]}
+          resolution={1024}
+          mixBlur={1}
+          mixStrength={55}
+          mirror={0.55}
+          depthScale={1.1}
+          minDepthThreshold={0.4}
+          maxDepthThreshold={1.3}
+          color="#0a0a0c"
+          metalness={0.7}
+          roughness={0.28}
+          roughnessMap={roughTex}
+          envMapIntensity={1}
+        />
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={0.012} renderOrder={1}>
         <planeGeometry args={[6.4, 3.4]} />

@@ -2,7 +2,7 @@ import { Suspense, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
+import { EffectComposer, Bloom, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing'
 import { Stage } from './components/Stage'
 import { Backdrops } from './components/Backdrops'
 import { CameraRig } from './components/CameraRig'
@@ -21,20 +21,28 @@ function ScrollSync() {
     onScroll()
     return () => removeEventListener('scroll', onScroll)
   }, [])
-  useFrame((_, dt) => {
+  useFrame((_, dtRaw) => {
+    const dt = Math.min(dtRaw, 0.05)
     const s = useApp.getState()
-    const cur = s.progress + (target.current - s.progress) * Math.min(1, Math.min(dt, 0.05) * 4)
+    const dist = Math.abs(target.current - s.progress)
+    /* adaptive: big scroll jumps settle fast so the camera never lags behind */
+    const k = Math.min(1, dt * (4 + dist * 6))
+    const cur = s.progress + (target.current - s.progress) * k
     if (Math.abs(cur - s.progress) > 1e-4) s.setProgress(cur)
   })
   return null
 }
 
 function Effects() {
-  const p = useApp((s) => s.progress)
-  const bloomI = 0.45 + THREE.MathUtils.clamp((p - 3.4) / 1.5, 0, 1) * 0.55
+  const bloomRef = useRef<any>(null)
+  useFrame(() => {
+    const p = useApp.getState().progress
+    if (bloomRef.current) bloomRef.current.intensity = 0.45 + THREE.MathUtils.clamp((p - 3.4) / 1.5, 0, 1) * 0.55
+  })
   return (
     <EffectComposer>
-      <Bloom intensity={bloomI} luminanceThreshold={0.82} luminanceSmoothing={0.3} mipmapBlur />
+      <Bloom ref={bloomRef} intensity={0.45} luminanceThreshold={0.82} luminanceSmoothing={0.3} mipmapBlur />
+      <ChromaticAberration offset={[0.00055, 0.0004] as any} radialModulation modulationOffset={0.35} />
       <Noise opacity={0.045} />
       <Vignette eskil={false} offset={0.28} darkness={0.78} />
     </EffectComposer>
@@ -46,6 +54,7 @@ export default function App() {
     <>
       <div className="stage">
         <Canvas
+          shadows
           dpr={[1, 2]}
           camera={{ position: [1.2, 1.0, 3.4], fov: 40, near: 0.1, far: 200 }}
           gl={{ antialias: true, powerPreference: 'high-performance' }}

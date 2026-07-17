@@ -88,7 +88,7 @@ export function Overlay() {
             <span className="l1 disp">START</span>
             <span className="l2">PRESS TO IGNITE</span>
           </button>
-          <div className="hint">Запустите двигатель</div>
+          <div className="hint">Start the engine</div>
         </div>
       )}
 
@@ -99,7 +99,7 @@ export function Overlay() {
       </header>
 
       {/* rail */}
-      <nav className={'rail' + (started ? ' show' : '')} aria-label="Разделы">
+      <nav className={'rail' + (started ? ' show' : '')} aria-label="Chapters">
         {PHASE_NAMES.map((n, i) => (
           <button key={n} className={'rs' + (i === phaseIdx ? ' on' : '')} onClick={() => jump(i)}>
             <span>{n}</span>
@@ -118,10 +118,10 @@ export function Overlay() {
       <button
         className={'lookHint' + (started && (interiorMode || (progress > 2.85 && progress < 3.55)) ? ' show' : '')}
         onClick={toggleInterior}
-        aria-label="Осмотр салона мышью"
+        aria-label="Look around the cabin"
       >
         <span className="mouseIc"><span className="wheel" /></span>
-        Зажмите мышь и осмотритесь
+        Hold and drag to look around
       </button>
 
       {/* configurator */}
@@ -171,12 +171,12 @@ export function Overlay() {
         <section className="panel">
           <div className="eyebrow">The Unexpected</div>
           <h2 className="disp">Terramar</h2>
-          <p className="lead">Городской спорт-кроссовер CUPRA. История начинается в тишине студии — там, где свет впервые касается металла.</p>
+          <p className="lead">The CUPRA urban sport crossover. The story begins in the silence of the studio — where light first touches metal.</p>
         </section>
         <section className="panel right">
           <div className="eyebrow">Daybreak</div>
           <h2 className="disp">Born<br />to Move</h2>
-          <p className="lead">Дневной свет раскрывает характер: фиолетовый металлик оживает в движении, отражая горизонт в каждой грани.</p>
+          <p className="lead">Daylight reveals its character: purple metallic comes alive in motion, mirroring the horizon in every line.</p>
           <div className="spec">
             <div><span className="n disp">2.0 TSI</span><span className="l">Engine</span></div>
             <div><span className="n disp">265</span><span className="l">PS</span></div>
@@ -186,17 +186,17 @@ export function Overlay() {
         <section className="panel">
           <div className="eyebrow">Golden Hour</div>
           <h2 className="disp">Sculpted<br />in Light</h2>
-          <p className="lead">Закат — момент, ради которого создают форму. Медные блики скользят по плечам кузова.</p>
+          <p className="lead">Golden hour — the moment this form was designed for. Copper highlights glide across the shoulders of the body.</p>
         </section>
         <section className="panel center">
           <div className="eyebrow">Step Inside</div>
           <h2 className="disp">Driver<br />First</h2>
-          <p className="lead">Кабина, собранная вокруг водителя: спортивные кресла-ковши, медная прострочка и свет заката в панорамных стёклах.</p>
+          <p className="lead">A cockpit built around the driver: sport bucket seats, copper stitching, and sunset light pouring through the glass.</p>
         </section>
         <section className="panel right">
           <div className="eyebrow">After Dark</div>
           <h2 className="disp">Night<br />Instinct</h2>
-          <p className="lead">Когда гаснет солнце, оживает световая подпись. Три треугольника — взгляд, который не спутать.</p>
+          <p className="lead">When the sun goes down, the light signature awakens. Three triangles — a gaze you can\u2019t mistake.</p>
           <div className="spec">
             <div><span className="n disp">4Drive</span><span className="l">AWD</span></div>
             <div><span className="n disp">DCC</span><span className="l">Adaptive</span></div>
@@ -205,7 +205,7 @@ export function Overlay() {
         <section className="panel">
           <div className="eyebrow">Storm</div>
           <h2 className="disp">Rain Never<br />Stops Us</h2>
-          <p className="lead">Ливень, мокрый асфальт, зеркальные отражения. Полный привод остаётся собранным в любую стихию.</p>
+          <p className="lead">Downpour, wet asphalt, mirror reflections. All-wheel drive stays composed in any element.</p>
         </section>
         <section className="panel center finale">
           <div className="eyebrow">CUPRA</div>
