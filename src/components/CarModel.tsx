@@ -23,6 +23,7 @@ export function CarModel() {
   const paintMats = useRef<THREE.MeshPhysicalMaterial[]>([])
   const drlWhite = useRef<THREE.MeshStandardMaterial[]>([])
   const drlMeshes = useRef<THREE.Object3D[]>([])
+  const tailMeshes = useRef<THREE.Object3D[]>([])
   const drlRed = useRef<THREE.MeshStandardMaterial[]>([])
   const targetColor = useRef(new THREE.Color(bodyColor))
   const rimFlash = useRef(0)
@@ -44,7 +45,7 @@ export function CarModel() {
         }
         if (n.includes('glass')) m.envMapIntensity = 1.4
         if (n.includes('lightswhite')) { m.emissive = new THREE.Color('#ffe9c4'); m.emissiveIntensity = 0; drlWhite.current.push(m); drlMeshes.current.push(o) }
-        if (n.includes('lightsred')) { m.emissive = new THREE.Color('#ff2020'); m.emissiveIntensity = 0; drlRed.current.push(m) }
+        if (n.includes('lightsred')) { m.emissive = new THREE.Color('#ff2020'); m.emissiveIntensity = 0; drlRed.current.push(m); tailMeshes.current.push(o) }
       })
     })
 
@@ -63,13 +64,15 @@ export function CarModel() {
 
   useEffect(() => {
     setReady(true)
-    /* locate the nose of the car from headlight meshes for interior camera */
-    if (drlMeshes.current.length) {
-      const v = new THREE.Vector3()
-      const tmp = new THREE.Vector3()
-      drlMeshes.current.forEach((o) => v.add(o.getWorldPosition(tmp)))
-      v.divideScalar(drlMeshes.current.length)
-      useApp.getState().setFrontPos([v.x, v.y, v.z])
+    /* nose direction = from tail-light centroid toward headlight centroid (unambiguous) */
+    if (drlMeshes.current.length && tailMeshes.current.length) {
+      const w = new THREE.Vector3(), r = new THREE.Vector3(), tmp = new THREE.Vector3()
+      drlMeshes.current.forEach((o) => w.add(o.getWorldPosition(tmp)))
+      w.divideScalar(drlMeshes.current.length)
+      tailMeshes.current.forEach((o) => r.add(o.getWorldPosition(tmp)))
+      r.divideScalar(tailMeshes.current.length)
+      const d = w.sub(r); d.y = 0; d.normalize()
+      useApp.getState().setFrontPos([d.x, 0, d.z])
     }
   }, [setReady])
 

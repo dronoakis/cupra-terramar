@@ -7,20 +7,20 @@ const CAM: Array<[[number, number, number], [number, number, number], number]> =
   [[0, 1.5, 7.6], [0, 1.0, 0], 38],
   [[5.2, 1.3, 4.4], [0, 0.95, 0], 34],
   [[-4.4, 1.0, 5.2], [0, 1.0, 0], 40],
-  [[-1.28, 1.38, 0.22], [2.6, 0.9, 0.08], 80],   // interior (refined dynamically from headlights)
+  [[-0.55, 1.3, 0], [2.6, 0.95, 0], 68],   // interior: between the front seats
   [[-5.6, 1.6, -3.2], [0, 1.0, 0], 34],
   [[0, 2.2, 6.6], [0, 0.95, 0], 42],
   [[0, 1.9, 8.8], [0, 1.0, 0], 36],
 ]
 
-const seatPos = new THREE.Vector3(-1.28, 1.38, 0.22)
-const seatTgt = new THREE.Vector3(2.6, 0.9, 0.08)
+const seatPos = new THREE.Vector3(-0.55, 1.3, 0)
+const seatTgt = new THREE.Vector3(2.6, 0.95, 0)
 function refineInterior(front: [number, number, number] | null) {
   if (!front) return
   const dir = new THREE.Vector3(front[0], 0, front[2]).normalize()
-  const side = new THREE.Vector3(-dir.z, 0, dir.x) // driver side offset
-  seatPos.copy(dir).multiplyScalar(-1.28).addScaledVector(side, 0.22).setY(1.38)
-  seatTgt.copy(dir).multiplyScalar(2.6).addScaledVector(side, 0.1).setY(0.9)
+  /* centered between the front seats, looking at the dashboard */
+  seatPos.copy(dir).multiplyScalar(-0.55).setY(1.3)
+  seatTgt.copy(dir).multiplyScalar(2.6).setY(0.95)
   CAM[3][0] = [seatPos.x, seatPos.y, seatPos.z]
   CAM[3][1] = [seatTgt.x, seatTgt.y, seatTgt.z]
 }
@@ -110,7 +110,7 @@ export function CameraRig() {
     if (s.interiorMode && s.started) {
       vPos.copy(seatPos)
       vTgt.copy(seatTgt)
-      fov = 80
+      fov = 68
     }
 
     /* mouse-look inside the cabin */
