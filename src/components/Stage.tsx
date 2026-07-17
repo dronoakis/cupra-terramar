@@ -53,7 +53,7 @@ export function Stage() {
     groundMat.current.roughness = THREE.MathUtils.lerp(A.groundRough, B.groundRough, t)
 
     /* ambient underglow: on at night+, colored via configurator */
-    const night = THREE.MathUtils.clamp((p - 2.4) / 0.8, 0, 1)
+    const night = THREE.MathUtils.clamp((p - 3.4) / 0.8, 0, 1)
     const amb = useApp.getState().ambientColor
     ambARef.current.color.set(amb); ambBRef.current.color.set(amb)
     ambARef.current.intensity = night * 1.3
@@ -101,7 +101,7 @@ function Rain() {
 
   useFrame((_, dt) => {
     const p = useApp.getState().progress
-    const amt = THREE.MathUtils.clamp((p - 3.5) / 1.0, 0, 1) * THREE.MathUtils.clamp(1 - (p - 5) * 1.6, 0, 1)
+    const amt = THREE.MathUtils.clamp((p - 4.5) / 1.0, 0, 1) * THREE.MathUtils.clamp(1 - (p - 6) * 1.6, 0, 1)
     const mat = ref.current.material as THREE.PointsMaterial
     mat.opacity = amt * 0.55
     if (amt <= 0.01) return

@@ -25,6 +25,8 @@ export function Overlay() {
   const setAmbientColor = useApp((s) => s.setAmbientColor)
   const toggleDoors = useApp((s) => s.toggleDoors)
   const toggleOrbit = useApp((s) => s.toggleOrbit)
+  const toggleInterior = useApp((s) => s.toggleInterior)
+  const interiorMode = useApp((s) => s.interiorMode)
   const autoOrbit = useApp((s) => s.autoOrbit)
   const doorsOpen = useApp((s) => s.doorsOpen)
 
@@ -125,7 +127,7 @@ export function Overlay() {
         <div className="grp">
           <div className="gl">Environment</div>
           <div className="chips">
-            {PHASE_NAMES.slice(0, 5).map((n, i) => (
+            {([['STUDIO', 0], ['DAY', 1], ['SUNSET', 2], ['NIGHT', 4], ['RAIN', 5]] as const).map(([n, i]) => (
               <button key={n} className={'chip' + (phaseIdx === i ? ' sel' : '')} onClick={() => jump(i)}>{n}</button>
             ))}
           </div>
@@ -143,6 +145,7 @@ export function Overlay() {
           <div className="chips">
             <button className={'chip' + (autoOrbit ? ' sel' : '')} onClick={toggleOrbit}>Auto-orbit</button>
             <button className={'chip' + (doorsOpen ? ' sel' : '')} onClick={toggleDoors}>Doors</button>
+            <button className={'chip' + (interiorMode ? ' sel' : '')} onClick={toggleInterior}>Interior</button>
           </div>
         </div>
       </aside>
@@ -168,6 +171,11 @@ export function Overlay() {
           <div className="eyebrow">Golden Hour</div>
           <h2 className="disp">Sculpted<br />in Light</h2>
           <p className="lead">Закат — момент, ради которого создают форму. Медные блики скользят по плечам кузова.</p>
+        </section>
+        <section className="panel center">
+          <div className="eyebrow">Step Inside</div>
+          <h2 className="disp">Driver<br />First</h2>
+          <p className="lead">Кабина, собранная вокруг водителя: спортивные кресла-ковши, медная прострочка и свет заката в панорамных стёклах.</p>
         </section>
         <section className="panel right">
           <div className="eyebrow">After Dark</div>

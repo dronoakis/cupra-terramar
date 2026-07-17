@@ -5,7 +5,7 @@ import { PHASES, easeInOut, useApp } from '../store'
 
 /* Kling-generated environment plates. Missing files are skipped gracefully. */
 const FILES = ['/backdrops/bg-1.jpg', '/backdrops/bg-2.jpg', '/backdrops/bg-3.jpg', '/backdrops/bg-4.jpg', '/backdrops/bg-5.jpg']
-const MAP = [0, 1, 2, 3, 4, 0] // phase index → plate index (finale reuses studio)
+const MAP = [0, 1, 2, 2, 3, 4, 0] // phase → plate (interior keeps sunset outside; finale reuses studio)
 
 export function Backdrops() {
   const { camera, scene } = useThree()

@@ -22,6 +22,7 @@ export function CarModel() {
 
   const paintMats = useRef<THREE.MeshPhysicalMaterial[]>([])
   const drlWhite = useRef<THREE.MeshStandardMaterial[]>([])
+  const drlMeshes = useRef<THREE.Object3D[]>([])
   const drlRed = useRef<THREE.MeshStandardMaterial[]>([])
   const targetColor = useRef(new THREE.Color(bodyColor))
   const rimFlash = useRef(0)
@@ -42,7 +43,7 @@ export function CarModel() {
           if (!paintMats.current.includes(m)) paintMats.current.push(m)
         }
         if (n.includes('glass')) m.envMapIntensity = 1.4
-        if (n.includes('lightswhite')) { m.emissive = new THREE.Color('#ffe9c4'); m.emissiveIntensity = 0; drlWhite.current.push(m) }
+        if (n.includes('lightswhite')) { m.emissive = new THREE.Color('#ffe9c4'); m.emissiveIntensity = 0; drlWhite.current.push(m); drlMeshes.current.push(o) }
         if (n.includes('lightsred')) { m.emissive = new THREE.Color('#ff2020'); m.emissiveIntensity = 0; drlRed.current.push(m) }
       })
     })
@@ -60,7 +61,17 @@ export function CarModel() {
 
   }, [gltf])
 
-  useEffect(() => { setReady(true) }, [setReady])
+  useEffect(() => {
+    setReady(true)
+    /* locate the nose of the car from headlight meshes for interior camera */
+    if (drlMeshes.current.length) {
+      const v = new THREE.Vector3()
+      const tmp = new THREE.Vector3()
+      drlMeshes.current.forEach((o) => v.add(o.getWorldPosition(tmp)))
+      v.divideScalar(drlMeshes.current.length)
+      useApp.getState().setFrontPos([v.x, v.y, v.z])
+    }
+  }, [setReady])
 
   /* body color: cinematic transition target */
   useEffect(() => {
@@ -89,7 +100,7 @@ export function CarModel() {
 
     /* DRL: night phases + after ignition */
     const p = useApp.getState().progress
-    const night = THREE.MathUtils.clamp((p - 2.4) / 0.8, 0, 1)
+    const night = THREE.MathUtils.clamp((p - 3.4) / 0.8, 0, 1)
     const ign = started ? 1 : 0
     const v = Math.max(night, ign * THREE.MathUtils.clamp(1 - p * 2, 0.35, 1))
     drlWhite.current.forEach((m) => (m.emissiveIntensity = v * 2.2))

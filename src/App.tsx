@@ -31,7 +31,7 @@ function ScrollSync() {
 
 function Effects() {
   const p = useApp((s) => s.progress)
-  const bloomI = 0.45 + THREE.MathUtils.clamp((p - 2.4) / 1.5, 0, 1) * 0.55
+  const bloomI = 0.45 + THREE.MathUtils.clamp((p - 3.4) / 1.5, 0, 1) * 0.55
   return (
     <EffectComposer>
       <Bloom intensity={bloomI} luminanceThreshold={0.82} luminanceSmoothing={0.3} mipmapBlur />
