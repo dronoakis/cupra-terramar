@@ -4,6 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Lightformer } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise, DepthOfField } from '@react-three/postprocessing'
 import { Stage } from './components/Stage'
+import { Backdrops } from './components/Backdrops'
 import { CameraRig } from './components/CameraRig'
 import { Overlay } from './components/Overlay'
 import { PHASES, useApp } from './store'
@@ -55,6 +56,7 @@ export default function App() {
             scene.background = new THREE.Color('#0e0e12')
           }}
         >
+          <Backdrops />
           <Suspense fallback={null}>
             <Environment resolution={256} frames={1}>
               <Lightformer intensity={3} rotation-x={Math.PI / 2} position={[0, 5, 0]} scale={[12, 12, 1]} />
