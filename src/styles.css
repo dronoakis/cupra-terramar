@@ -93,5 +93,16 @@ body.cine .lb{height:5vh}
 .finale .fsub{font-weight:300;font-size:clamp(17px,2.2vw,28px);letter-spacing:.5em;text-transform:uppercase;color:var(--copper-b);margin-top:16px;opacity:0;transform:translateY(18px);transition:all 1s .3s}
 .finale.in .fsub{opacity:1;transform:translateY(0)}
 
+
+.lookHint{position:fixed;left:50%;bottom:9vh;transform:translateX(-50%) translateY(14px);z-index:22;display:flex;align-items:center;gap:12px;
+  background:rgba(10,10,12,.72);backdrop-filter:blur(12px);border:1px solid rgba(200,112,59,.5);color:#f2ede6;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:12px 20px;border-radius:28px;
+  opacity:0;pointer-events:none;transition:opacity .6s,transform .6s;box-shadow:0 0 28px rgba(200,112,59,.22)}
+.lookHint.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.lookHint:hover{border-color:var(--copper-b)}
+.mouseIc{width:16px;height:24px;border:1.5px solid var(--copper-b);border-radius:9px;position:relative;display:inline-block;animation:sway 2.2s ease-in-out infinite}
+.mouseIc .wheel{position:absolute;left:50%;top:5px;width:2px;height:5px;background:var(--copper-b);border-radius:2px;transform:translateX(-50%)}
+@keyframes sway{0%,100%{transform:translateX(-5px) rotate(-6deg)}50%{transform:translateX(5px) rotate(6deg)}}
+
 @media(max-width:640px){.rail{display:none}.panel{padding:0 7vw}.spec{gap:24px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.001s!important}}

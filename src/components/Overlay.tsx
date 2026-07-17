@@ -107,6 +107,14 @@ export function Overlay() {
       </nav>
       <div className="speed" style={{ width: `${(progress / (PHASES.length - 1)) * 100}%` }} />
       <div className={'cue' + (started && progress < 0.15 ? ' show' : '')}><span>Scroll</span><span className="bar" /></div>
+      <button
+        className={'lookHint' + (started && (interiorMode || (progress > 2.85 && progress < 3.55)) ? ' show' : '')}
+        onClick={toggleInterior}
+        aria-label="Осмотр салона мышью"
+      >
+        <span className="mouseIc"><span className="wheel" /></span>
+        Зажмите мышь и осмотритесь
+      </button>
 
       {/* configurator */}
       <button className={'cfgT' + (started ? ' show' : '')} onClick={() => setCfgOpen(!cfgOpen)}>Configurator</button>

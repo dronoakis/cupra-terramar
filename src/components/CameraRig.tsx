@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { easeInOut, useApp } from '../store'
@@ -29,11 +29,43 @@ const vPos = new THREE.Vector3(), vTgt = new THREE.Vector3()
 const vA = new THREE.Vector3(), vB = new THREE.Vector3()
 const introFrom = new THREE.Vector3(1.2, 1.0, 3.4)
 
+/* scroll dwell: camera holds the interior frame over a wide scroll span */
+function dwellRemap(p: number) {
+  if (p < 2.6) return p
+  if (p < 2.9) return 2.6 + ((p - 2.6) / 0.3) * 0.4   // fast approach into cabin
+  if (p < 3.5) return 3.0                              // freeze frame inside
+  if (p < 4.0) return 3.0 + ((p - 3.5) / 0.5) * 1.0    // leave toward night
+  return p
+}
+
 export function CameraRig() {
-  const { camera } = useThree()
+  const { camera, gl } = useThree()
   const introT = useRef(-1)
   const startedPrev = useRef(false)
   const par = useRef({ x: 0, y: 0 })
+  const look = useRef({ yaw: 0, pitch: 0, drag: false, lx: 0, ly: 0 })
+  const interiorActive = useRef(false)
+
+  /* drag-to-look inside the cabin */
+  useEffect(() => {
+    const el = gl.domElement.ownerDocument
+    const down = (e: PointerEvent) => {
+      if (!interiorActive.current) return
+      look.current.drag = true
+      look.current.lx = e.clientX; look.current.ly = e.clientY
+    }
+    const move = (e: PointerEvent) => {
+      if (!look.current.drag || !interiorActive.current) return
+      look.current.yaw -= (e.clientX - look.current.lx) * 0.0035
+      look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - (e.clientY - look.current.ly) * 0.0025, -0.55, 0.5)
+      look.current.lx = e.clientX; look.current.ly = e.clientY
+    }
+    const up = () => { look.current.drag = false }
+    el.addEventListener('pointerdown', down)
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerup', up)
+    return () => { el.removeEventListener('pointerdown', down); el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up) }
+  }, [gl])
 
   useFrame((state, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05)
@@ -45,8 +77,11 @@ export function CameraRig() {
 
     refineInterior(s.frontPos)
 
-    const i = Math.min(Math.floor(p), CAM.length - 2)
-    const t = easeInOut(THREE.MathUtils.clamp(p - i, 0, 1))
+    const pc0 = dwellRemap(p)
+    interiorActive.current = s.interiorMode || (p > 2.85 && p < 3.55)
+
+    const i = Math.min(Math.floor(pc0), CAM.length - 2)
+    const t = easeInOut(THREE.MathUtils.clamp(pc0 - i, 0, 1))
     vPos.copy(vA.fromArray(CAM[i][0])).lerp(vB.fromArray(CAM[i + 1][0]), t)
     vTgt.copy(vA.fromArray(CAM[i][1])).lerp(vB.fromArray(CAM[i + 1][1]), t)
     let fov = THREE.MathUtils.lerp(CAM[i][2], CAM[i + 1][2], t)
@@ -66,14 +101,30 @@ export function CameraRig() {
       fov = 58
     }
 
+    /* mouse-look inside the cabin */
+    if (interiorActive.current) {
+      const dir = vTgt.clone().sub(seatPos)
+      const len = dir.length()
+      dir.normalize()
+      const yawQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), look.current.yaw)
+      dir.applyQuaternion(yawQ)
+      const side = new THREE.Vector3(-dir.z, 0, dir.x)
+      const pitchQ = new THREE.Quaternion().setFromAxisAngle(side, look.current.pitch)
+      dir.applyQuaternion(pitchQ)
+      vTgt.copy(seatPos).addScaledVector(dir, len)
+    } else {
+      look.current.yaw *= 0.92
+      look.current.pitch *= 0.92
+    }
+
     /* mouse parallax */
     par.current.x += (state.pointer.x * 0.5 - par.current.x) * Math.min(1, dt * 4)
     par.current.y += (state.pointer.y * 0.5 - par.current.y) * Math.min(1, dt * 4)
-    const pk = s.interiorMode || (p > 2.5 && p < 3.5) ? 0.25 : 1
+    const pk = interiorActive.current ? (look.current.drag ? 0 : 0.18) : 1
     vPos.x += par.current.x * 1.4 * pk
     vPos.y += par.current.y * 0.8 * pk
 
-    camera.position.lerp(vPos, Math.min(1, dt * 3.2))
+    camera.position.lerp(vPos, Math.min(1, dt * (interiorActive.current ? 6 : 3.2)))
     camera.lookAt(vTgt)
     const pc = camera as THREE.PerspectiveCamera
     if (Math.abs(pc.fov - fov) > 0.01) { pc.fov = THREE.MathUtils.lerp(pc.fov, fov, Math.min(1, dt * 3)); pc.updateProjectionMatrix() }
