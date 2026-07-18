@@ -38,7 +38,13 @@ export function CarModel() {
       mats.forEach((m: any) => {
         if (!m) return
         const n = (m.name || '').toLowerCase()
-        if (n.includes('carpaint')) {
+        /* painted body panels: dedicated paint materials + baked exterior atlases
+           (doors / tailgate are exported as *_ANIM_EXT_*_SingleMaterial with a
+           greyscale texture, so tinting via material.color recolours them) */
+        const isPaint =
+          n.includes('carpaint') ||
+          (n.includes('anim_ext_') && n.includes('singlematerial'))
+        if (isPaint) {
           m.clearcoat = 1
           m.clearcoatRoughness = 0.06
           m.envMapIntensity = 1.5
