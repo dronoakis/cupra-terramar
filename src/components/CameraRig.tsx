@@ -13,6 +13,8 @@ const CAM: Array<[[number, number, number], [number, number, number], number]> =
   [[0, 1.9, 8.8], [0, 1.0, 0], 36],
 ]
 
+const trunkPos = new THREE.Vector3(2.6, 1.5, 0)
+const trunkTgt = new THREE.Vector3(1.2, 0.8, 0)
 const seatPos = new THREE.Vector3(0.02, 1.48, 0)
 const seatTgt = new THREE.Vector3(-2.18, 0.9, 0)
 function refineInterior(pose: { pos: [number, number, number]; tgt: [number, number, number] } | null) {
@@ -79,6 +81,7 @@ export function CameraRig() {
     if (introT.current >= 0 && introT.current < 1) introT.current = Math.min(1, introT.current + dt / 2.4)
 
     refineInterior(s.cabinPose)
+    if (s.trunkPose) { trunkPos.fromArray(s.trunkPose.pos); trunkTgt.fromArray(s.trunkPose.tgt) }
 
     /* fast scrolling disables the interior freeze so the camera never feels stuck */
     const speed = Math.abs(p - prevP.current) / Math.max(dt, 0.001)
@@ -109,6 +112,13 @@ export function CameraRig() {
       vPos.copy(seatPos)
       vTgt.copy(seatTgt)
       fov = 70
+    }
+
+    /* trunk view overrides framing while the tailgate is open */
+    if (s.trunkOpen && s.started) {
+      vPos.copy(trunkPos)
+      vTgt.copy(trunkTgt)
+      fov = 52
     }
 
     /* mouse-look inside the cabin */

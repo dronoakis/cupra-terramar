@@ -16,6 +16,7 @@ export function CarModel() {
 
   const bodyColor = useApp((s) => s.bodyColor)
   const doorsOpen = useApp((s) => s.doorsOpen)
+  const trunkOpen = useApp((s) => s.trunkOpen)
   const autoOrbit = useApp((s) => s.autoOrbit)
   const started = useApp((s) => s.started)
   const setReady = useApp((s) => s.setReady)
@@ -110,6 +111,20 @@ export function CarModel() {
         pos: [seatMid.x, camY, seatMid.z],
         tgt: [tgt.x, sw.y - 0.26, tgt.z],         // pitched down onto the dash
       })
+
+      /* trunk view: stand behind the car, look down into the cargo bay */
+      const tg = centerOf('ALIAS_Tailgate', 'Combined_ALIAS_Tailgate', 'ANIM_EXT_TAILGATE')
+      if (tg) {
+        const back = fwd.clone().negate()
+        const camPos = tg.clone().addScaledVector(back, 1.55)
+        camPos.y = tg.y + 0.62
+        const look = tg.clone().addScaledVector(fwd, 0.75)
+        look.y = tg.y - 0.42
+        useApp.getState().setTrunkPose({
+          pos: [camPos.x, camPos.y, camPos.z],
+          tgt: [look.x, look.y, look.z],
+        })
+      }
     }
   }, [setReady])
 
@@ -119,18 +134,24 @@ export function CarModel() {
     rimFlash.current = 1
   }, [bodyColor])
 
-  /* doors */
-  useEffect(() => {
-    Object.values(actions).forEach((a: any) => {
-      if (!a) return
+  /* play a subset of clips forward (open) or backward (close) */
+  const drive = (match: RegExp, open: boolean) => {
+    Object.entries(actions).forEach(([name, a]: [string, any]) => {
+      if (!a || !match.test(name)) return
       a.clampWhenFinished = true
       a.setLoop(THREE.LoopOnce, 1)
       a.paused = false
-      a.timeScale = doorsOpen ? 1 : -1
-      if (doorsOpen) { a.reset(); a.play() }
+      a.timeScale = open ? 1 : -1
+      if (open) { a.reset(); a.play() }
       else { a.play(); if (a.time === 0) a.time = a.getClip().duration }
     })
-  }, [doorsOpen, actions])
+  }
+
+  /* doors (front + rear), tailgate stays independent */
+  useEffect(() => { drive(/door/i, doorsOpen) }, [doorsOpen, actions])
+
+  /* trunk / tailgate */
+  useEffect(() => { drive(/tailgate|trunk/i, trunkOpen) }, [trunkOpen, actions])
 
   useFrame((state, dt) => {
     const d = Math.min(dt, 0.05)

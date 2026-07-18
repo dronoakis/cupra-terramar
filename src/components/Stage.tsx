@@ -9,6 +9,7 @@ const cA = new THREE.Color(), cB = new THREE.Color()
 const lerpC = (a: string, b: string, t: number, out: THREE.Color) => out.copy(cA.set(a)).lerp(cB.set(b), t)
 
 export function Stage() {
+  const lite = useApp((s) => s.lite)
   const keyRef = useRef<THREE.DirectionalLight>(null!)
   const hemiRef = useRef<THREE.HemisphereLight>(null!)
   const rimRef = useRef<THREE.DirectionalLight>(null!)
@@ -84,8 +85,8 @@ export function Stage() {
         position={[5, 8, 6]}
         intensity={2.3}
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={lite ? 512 : 1024}
+        shadow-mapSize-height={lite ? 512 : 1024}
         shadow-camera-near={1}
         shadow-camera-far={30}
         shadow-camera-left={-6}
@@ -101,6 +102,16 @@ export function Stage() {
 
       <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
         <circleGeometry args={[30, 64]} />
+        {lite ? (
+          <meshStandardMaterial
+            ref={groundMat}
+            color="#0a0a0c"
+            roughness={0.28}
+            metalness={0.8}
+            roughnessMap={roughTex}
+            envMapIntensity={1}
+          />
+        ) : (
         <MeshReflectorMaterial
           ref={groundMat as any}
           blur={[280, 90]}
@@ -117,6 +128,7 @@ export function Stage() {
           roughnessMap={roughTex}
           envMapIntensity={1}
         />
+        )}
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={0.012} renderOrder={1}>
         <planeGeometry args={[6.4, 3.4]} />

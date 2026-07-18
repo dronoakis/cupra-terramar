@@ -14,6 +14,9 @@ interface AppState {
   looked: boolean
   frontPos: [number, number, number] | null
   cabinPose: { pos: [number, number, number]; tgt: [number, number, number] } | null
+  trunkPose: { pos: [number, number, number]; tgt: [number, number, number] } | null
+  trunkOpen: boolean
+  lite: boolean
   cfgOpen: boolean
   jumpTo: number | null   // request scroll jump to phase index
   setReady: (v: boolean) => void
@@ -27,6 +30,9 @@ interface AppState {
   setLooked: (v: boolean) => void
   setFrontPos: (v: [number, number, number]) => void
   setCabinPose: (v: { pos: [number, number, number]; tgt: [number, number, number] }) => void
+  setTrunkPose: (v: { pos: [number, number, number]; tgt: [number, number, number] }) => void
+  toggleTrunk: () => void
+  setLite: (v: boolean) => void
   setCfgOpen: (v: boolean) => void
   setJumpTo: (v: number | null) => void
 }
@@ -43,6 +49,9 @@ export const useApp = create<AppState>((set) => ({
   looked: false,
   frontPos: null,
   cabinPose: null,
+  trunkPose: null,
+  trunkOpen: false,
+  lite: false,
   cfgOpen: false,
   jumpTo: null,
   setReady: (v) => set({ ready: v }),
@@ -52,10 +61,14 @@ export const useApp = create<AppState>((set) => ({
   setAmbientColor: (v) => set({ ambientColor: v }),
   toggleDoors: () => set((s) => ({ doorsOpen: !s.doorsOpen })),
   toggleOrbit: () => set((s) => ({ autoOrbit: !s.autoOrbit })),
-  toggleInterior: () => set((s) => ({ interiorMode: !s.interiorMode })),
+  toggleInterior: () => set((s) => ({ interiorMode: !s.interiorMode, trunkOpen: false })),
   setLooked: (v) => set({ looked: v }),
   setFrontPos: (v) => set({ frontPos: v }),
   setCabinPose: (v) => set({ cabinPose: v }),
+  setTrunkPose: (v) => set({ trunkPose: v }),
+  /* trunk and cabin views are mutually exclusive */
+  toggleTrunk: () => set((s) => ({ trunkOpen: !s.trunkOpen, interiorMode: false })),
+  setLite: (v) => set({ lite: v }),
   setCfgOpen: (v) => set({ cfgOpen: v }),
   setJumpTo: (v) => set({ jumpTo: v }),
 }))

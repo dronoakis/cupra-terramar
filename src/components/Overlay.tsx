@@ -26,6 +26,10 @@ export function Overlay() {
   const toggleDoors = useApp((s) => s.toggleDoors)
   const toggleOrbit = useApp((s) => s.toggleOrbit)
   const toggleInterior = useApp((s) => s.toggleInterior)
+  const toggleTrunk = useApp((s) => s.toggleTrunk)
+  const trunkOpen = useApp((s) => s.trunkOpen)
+  const lite = useApp((s) => s.lite)
+  const setLite = useApp((s) => s.setLite)
   const interiorMode = useApp((s) => s.interiorMode)
   const looked = useApp((s) => s.looked)
   const autoOrbit = useApp((s) => s.autoOrbit)
@@ -160,8 +164,14 @@ export function Overlay() {
           <div className="gl">Presentation</div>
           <div className="chips">
             <button className={'chip' + (autoOrbit ? ' sel' : '')} onClick={toggleOrbit}>Auto-orbit</button>
+            <button className={'chip' + (lite ? ' sel' : '')} onClick={() => setLite(!lite)}>
+              {lite ? 'Lite mode: on' : 'Lite mode: off'}
+            </button>
             <button className={'chip' + (doorsOpen ? ' sel' : '')} onClick={toggleDoors}>Doors</button>
-            <button className={'chip' + (interiorMode ? ' sel' : '')} onClick={toggleInterior}>Interior</button>
+            <button className={'chip' + (interiorMode ? ' sel' : '')} onClick={toggleInterior}>Interior view</button>
+            <button className={'chip' + (trunkOpen ? ' sel' : '')} onClick={toggleTrunk}>
+              {trunkOpen ? 'Close the trunk' : 'Open a trunk'}
+            </button>
           </div>
         </div>
       </aside>

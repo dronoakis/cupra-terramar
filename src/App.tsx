@@ -4,6 +4,8 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { EffectComposer, Bloom, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing'
 import { Stage } from './components/Stage'
+import { Diagnostics, SceneErrorBoundary } from './components/Diagnostics'
+import { detectLite } from './lite'
 import { Backdrops } from './components/Backdrops'
 import { CameraRig } from './components/CameraRig'
 import { Overlay } from './components/Overlay'
@@ -50,12 +52,17 @@ function Effects() {
 }
 
 export default function App() {
+  const lite = useApp((s) => s.lite)
+  const setLite = useApp((s) => s.setLite)
+  useEffect(() => { setLite(detectLite()) }, [setLite])
+
   return (
     <>
       <div className="stage">
+        <SceneErrorBoundary>
         <Canvas
-          shadows
-          dpr={[1, 2]}
+          shadows={!lite}
+          dpr={lite ? [1, 1.25] : [1, 2]}
           camera={{ position: [1.2, 1.0, 3.4], fov: 40, near: 0.1, far: 200 }}
           gl={{ antialias: true, powerPreference: 'high-performance' }}
           onCreated={({ gl, scene }) => {
@@ -74,8 +81,10 @@ export default function App() {
           <ScrollSync />
           <Effects />
         </Canvas>
+        </SceneErrorBoundary>
       </div>
       <Overlay />
+      <Diagnostics />
     </>
   )
 }
