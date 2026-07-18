@@ -1,7 +1,6 @@
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { MeshReflectorMaterial } from '@react-three/drei'
 import { PHASES, easeInOut, useApp } from '../store'
 import { CarModel } from './CarModel'
 
@@ -102,33 +101,14 @@ export function Stage() {
 
       <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
         <circleGeometry args={[30, 64]} />
-        {lite ? (
-          <meshStandardMaterial
-            ref={groundMat}
-            color="#0a0a0c"
-            roughness={0.28}
-            metalness={0.8}
-            roughnessMap={roughTex}
-            envMapIntensity={1}
-          />
-        ) : (
-        <MeshReflectorMaterial
-          ref={groundMat as any}
-          blur={[280, 90]}
-          resolution={1024}
-          mixBlur={1}
-          mixStrength={55}
-          mirror={0.55}
-          depthScale={1.1}
-          minDepthThreshold={0.4}
-          maxDepthThreshold={1.3}
+        <meshStandardMaterial
+          ref={groundMat}
           color="#0a0a0c"
-          metalness={0.7}
-          roughness={0.28}
+          roughness={0.26}
+          metalness={0.85}
           roughnessMap={roughTex}
-          envMapIntensity={1}
+          envMapIntensity={1.2}
         />
-        )}
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={0.012} renderOrder={1}>
         <planeGeometry args={[6.4, 3.4]} />

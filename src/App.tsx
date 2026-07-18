@@ -2,7 +2,7 @@ import { Suspense, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { EffectComposer, Bloom, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing'
+import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { Stage } from './components/Stage'
 import { Diagnostics, SceneErrorBoundary } from './components/Diagnostics'
 import { detectLite } from './lite'
@@ -44,7 +44,6 @@ function Effects() {
   return (
     <EffectComposer>
       <Bloom ref={bloomRef} intensity={0.45} luminanceThreshold={0.82} luminanceSmoothing={0.3} mipmapBlur />
-      <ChromaticAberration offset={[0.00055, 0.0004] as any} radialModulation modulationOffset={0.35} />
       <Noise opacity={0.045} />
       <Vignette eskil={false} offset={0.28} darkness={0.78} />
     </EffectComposer>

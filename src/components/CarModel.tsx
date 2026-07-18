@@ -46,14 +46,21 @@ export function CarModel() {
           n.includes('carpaint') ||
           (n.includes('anim_ext_') && n.includes('singlematerial'))
         if (isPaint) {
-          m.clearcoat = 1
-          m.clearcoatRoughness = 0.06
+          if ('clearcoat' in m) { m.clearcoat = 1; m.clearcoatRoughness = 0.06 }
           m.envMapIntensity = 1.5
           if (!paintMats.current.includes(m)) paintMats.current.push(m)
         }
         if (n.includes('glass')) m.envMapIntensity = 1.4
-        if (n.includes('lightswhite')) { m.emissive = new THREE.Color('#ffe9c4'); m.emissiveIntensity = 0; drlWhite.current.push(m); drlMeshes.current.push(o) }
-        if (n.includes('lightsred')) { m.emissive = new THREE.Color('#ff2020'); m.emissiveIntensity = 0; drlRed.current.push(m); tailMeshes.current.push(o) }
+        /* unlit (KHR_materials_unlit) materials are MeshBasicMaterial and have no
+           emissive channel — writing to it produces a shader/uniform mismatch */
+        if (n.includes('lightswhite')) {
+          if (m.emissive) { m.emissiveIntensity = 0; m.emissive.set('#ffe9c4'); drlWhite.current.push(m) }
+          drlMeshes.current.push(o)
+        }
+        if (n.includes('lightsred')) {
+          if (m.emissive) { m.emissiveIntensity = 0; m.emissive.set('#ff2020'); drlRed.current.push(m) }
+          tailMeshes.current.push(o)
+        }
       })
     })
 
@@ -64,7 +71,6 @@ export function CarModel() {
         const mats: THREE.Material[] = Array.isArray(o.material) ? o.material : [o.material]
         mats.forEach((m: any) => {
           if (m && m.clearcoat > 0 && m.color && !paintMats.current.includes(m)) {
-            m.clearcoat = 1
             m.clearcoatRoughness = 0.06
             m.envMapIntensity = 1.5
             paintMats.current.push(m)
