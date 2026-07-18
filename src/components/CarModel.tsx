@@ -50,6 +50,22 @@ export function CarModel() {
       })
     })
 
+    /* fallback: if paint materials were renamed by an optimizer, detect them by clearcoat */
+    if (!paintMats.current.length) {
+      root.traverse((o: any) => {
+        if (!o.isMesh) return
+        const mats: THREE.Material[] = Array.isArray(o.material) ? o.material : [o.material]
+        mats.forEach((m: any) => {
+          if (m && m.clearcoat > 0 && m.color && !paintMats.current.includes(m)) {
+            m.clearcoat = 1
+            m.clearcoatRoughness = 0.06
+            m.envMapIntensity = 1.5
+            paintMats.current.push(m)
+          }
+        })
+      })
+    }
+
     /* center & scale to length 5, sit on ground */
     root.updateMatrixWorld(true)
     const box = new THREE.Box3().setFromObject(root)
