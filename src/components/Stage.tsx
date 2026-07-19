@@ -81,18 +81,18 @@ export function Stage() {
       <hemisphereLight ref={hemiRef} intensity={0.55} />
       <directionalLight
         ref={keyRef}
-        position={[5, 8, 6]}
-        intensity={2.3}
+        position={[4.5, 9, 5.5]}
+        intensity={2.6}
         castShadow
-        shadow-mapSize-width={lite ? 512 : 1024}
-        shadow-mapSize-height={lite ? 512 : 1024}
-        shadow-camera-near={1}
-        shadow-camera-far={30}
-        shadow-camera-left={-6}
-        shadow-camera-right={6}
-        shadow-camera-top={6}
-        shadow-camera-bottom={-6}
-        shadow-bias={-0.0004}
+        shadow-mapSize-width={lite ? 512 : 2048}
+        shadow-mapSize-height={lite ? 512 : 2048}
+        shadow-camera-near={0.5}
+        shadow-camera-far={35}
+        shadow-camera-left={-7}
+        shadow-camera-right={7}
+        shadow-camera-top={7}
+        shadow-camera-bottom={-7}
+        shadow-bias={-0.0003}
       />
       <directionalLight ref={rimRef} position={[-6, 4, -6]} intensity={1.4} color="#c8703b" />
       <directionalLight ref={fillRef} position={[-4, 3, 7]} intensity={0.5} color="#88aaff" />
@@ -103,11 +103,11 @@ export function Stage() {
         <circleGeometry args={[30, 64]} />
         <meshStandardMaterial
           ref={groundMat}
-          color="#0a0a0c"
-          roughness={0.26}
-          metalness={0.85}
+          color="#0b0b0e"
+          roughness={0.22}
+          metalness={0.92}
           roughnessMap={roughTex}
-          envMapIntensity={1.2}
+          envMapIntensity={2.2}
         />
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={0.012} renderOrder={1}>

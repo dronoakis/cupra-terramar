@@ -2,6 +2,7 @@ import { Suspense, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { Lightformer, Environment } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { Stage } from './components/Stage'
 import { Diagnostics, SceneErrorBoundary } from './components/Diagnostics'
@@ -74,6 +75,12 @@ export default function App() {
         >
           <Backdrops />
           <Suspense fallback={null}>
+            <Environment resolution={512} frames={Infinity}>
+              <Lightformer intensity={4} rotation-x={Math.PI / 2} position={[0, 6, 0]} scale={[14, 14, 1]} />
+              <Lightformer intensity={3} position={[-8, 2, -2]} scale={[1, 12, 1]} color="#ffeedd" />
+              <Lightformer intensity={2} position={[8, 2, -2]} scale={[1, 12, 1]} color="#c8e0ff" />
+              <Lightformer intensity={1.5} rotation-y={Math.PI} position={[0, 2, -9]} scale={[12, 2, 1]} color="#ffffff" />
+            </Environment>
             <Stage />
           </Suspense>
           <CameraRig />

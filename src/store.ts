@@ -41,7 +41,7 @@ export const useApp = create<AppState>((set) => ({
   ready: false,
   started: false,
   progress: 0,
-  bodyColor: '#4a2b52',
+  bodyColor: '#0d0d10',
   ambientColor: '#c8703b',
   doorsOpen: false,
   autoOrbit: false,
@@ -83,11 +83,11 @@ export interface PhaseDef {
 }
 
 export const PHASES: PhaseDef[] = [
-  { bg: '#0e0e12', fog: '#0a0a0c', fogD: 0.014, exposure: 1.05, key: ['#ffffff', 2.3], hemiSky: '#ffffff', hemiGround: '#202024', hemiI: 0.55, rim: ['#c8703b', 1.4], fill: ['#88aaff', 0.5], groundRough: 0.28 },
+  { bg: '#0e0e12', fog: '#0a0a0c', fogD: 0.014, exposure: 1.12, key: ['#ffffff', 2.8], hemiSky: '#cdd5ff', hemiGround: '#1a1a1e', hemiI: 0.7, rim: ['#c8703b', 2.2], fill: ['#88aaff', 0.7], groundRough: 0.22 },
   { bg: '#8fb3d9', fog: '#b9d3ea', fogD: 0.008, exposure: 1.15, key: ['#fff6e6', 3.1], hemiSky: '#bcd8ff', hemiGround: '#5a6a55', hemiI: 1.05, rim: ['#ffffff', 1.0], fill: ['#ffffff', 0.6], groundRough: 0.22 },
-  { bg: '#d97a44', fog: '#c9663c', fogD: 0.012, exposure: 1.1, key: ['#ffb066', 2.9], hemiSky: '#ffb87a', hemiGround: '#3a2540', hemiI: 0.9, rim: ['#ff7a3c', 2.2], fill: ['#6a4a8a', 0.7], groundRough: 0.3 },
+  { bg: '#d97a44', fog: '#c9663c', fogD: 0.012, exposure: 1.18, key: ['#ffb066', 3.4], hemiSky: '#ffb87a', hemiGround: '#3a2540', hemiI: 1.0, rim: ['#ff5c1a', 3.0], fill: ['#6a4a8a', 0.8], groundRough: 0.3 },
   { bg: '#181014', fog: '#140d10', fogD: 0.02, exposure: 1.0, key: ['#ffc890', 1.6], hemiSky: '#c98a5a', hemiGround: '#1a1014', hemiI: 0.8, rim: ['#ff8a4c', 1.6], fill: ['#6a4a8a', 0.6], groundRough: 0.3 },
-  { bg: '#05060a', fog: '#070912', fogD: 0.02, exposure: 0.95, key: ['#9fb4ff', 1.1], hemiSky: '#2a3350', hemiGround: '#05060a', hemiI: 0.5, rim: ['#c8703b', 2.5], fill: ['#3b56aa', 0.9], groundRough: 0.16 },
+  { bg: '#05060a', fog: '#070912', fogD: 0.02, exposure: 1.02, key: ['#9fb4ff', 1.4], hemiSky: '#2a3350', hemiGround: '#05060a', hemiI: 0.55, rim: ['#c8703b', 3.2], fill: ['#3b56aa', 1.1], groundRough: 0.12 },
   { bg: '#0a0e14', fog: '#0c1017', fogD: 0.03, exposure: 0.9, key: ['#8fa8d8', 1.0], hemiSky: '#33405a', hemiGround: '#080a10', hemiI: 0.5, rim: ['#5a7fb0', 1.8], fill: ['#4466aa', 1.0], groundRough: 0.06 },
   { bg: '#0b0b10', fog: '#08080c', fogD: 0.016, exposure: 1.05, key: ['#ffffff', 2.2], hemiSky: '#ffffff', hemiGround: '#1a1a1e', hemiI: 0.6, rim: ['#c8703b', 2.0], fill: ['#88aaff', 0.5], groundRough: 0.25 },
 ]

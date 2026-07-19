@@ -26,26 +26,19 @@ export function Diagnostics() {
     addEventListener('unhandledrejection', onRej)
     addEventListener('webglcontextlost', onLost, true)
 
-    /* if nothing has rendered after 25s, tell the user rather than spinning forever */
-    const t = setTimeout(() => setSlow(true), 25000)
     return () => {
       removeEventListener('error', onErr)
       removeEventListener('unhandledrejection', onRej)
       removeEventListener('webglcontextlost', onLost, true)
-      clearTimeout(t)
     }
   }, [])
 
-  if (!msg && !slow) return null
+  if (!msg) return null
 
   return (
     <div className="diag">
-      <strong>{msg || 'Still loading the 3D model (14 MB)…'}</strong>
-      <span>
-        {msg
-          ? 'Open in lite mode: add ?quality=lite to the URL.'
-          : 'Slow connection or GPU? Add ?quality=lite to the URL for a lighter scene.'}
-      </span>
+      <strong>{msg}</strong>
+      <span>Open in lite mode: add ?quality=lite to the URL.</span>
     </div>
   )
 }
