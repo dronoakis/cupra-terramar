@@ -5,7 +5,7 @@ import { PHASES, easeInOut, useApp } from '../store'
 import { CarModel } from './CarModel'
 
 const cA = new THREE.Color(), cB = new THREE.Color()
-const lerpC = (a: string, b: string, t: number, out: THREE.Color) => out.copy(cA.set(a)).lerp(cB.set(b), t)
+const lerpC = (a: string | undefined, b: string | undefined, t: number, out: THREE.Color) => { if (!a || !b) return; out.copy(cA.set(a)).lerp(cB.set(b), t) }
 
 export function Stage() {
   const lite = useApp((s) => s.lite)
@@ -44,10 +44,12 @@ export function Stage() {
 
   useFrame((state, dt) => {
     const raw = useApp.getState().progress
-    const p = isFinite(raw) && raw >= 0 ? raw : 0
-    const i = Math.min(Math.max(0, Math.floor(p)), PHASES.length - 2)
-    const t = easeInOut(THREE.MathUtils.clamp(p - i, 0, 1))
-    const A = PHASES[i] ?? PHASES[0], B = PHASES[i + 1] ?? PHASES[PHASES.length - 1]
+    const p = (isFinite(raw) && raw >= 0) ? Math.min(raw, PHASES.length - 1) : 0
+    const i = Math.max(0, Math.min(Math.floor(p), PHASES.length - 2))
+    const t = easeInOut(Math.max(0, Math.min(p - i, 1)))
+    const A = PHASES[i]
+    const B = PHASES[i + 1]
+    if (!A || !B) return   // safeguard: skip frame if index is invalid
 
     lerpC(A.bg, B.bg, t, scene.background as THREE.Color)
     lerpC(A.fog, B.fog, t, fogRef.current.color)
