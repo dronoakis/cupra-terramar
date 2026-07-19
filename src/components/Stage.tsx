@@ -43,10 +43,11 @@ export function Stage() {
   }, [])
 
   useFrame((state, dt) => {
-    const p = useApp.getState().progress
-    const i = Math.min(Math.floor(p), PHASES.length - 2)
+    const raw = useApp.getState().progress
+    const p = isFinite(raw) && raw >= 0 ? raw : 0
+    const i = Math.min(Math.max(0, Math.floor(p)), PHASES.length - 2)
     const t = easeInOut(THREE.MathUtils.clamp(p - i, 0, 1))
-    const A = PHASES[i], B = PHASES[i + 1]
+    const A = PHASES[i] ?? PHASES[0], B = PHASES[i + 1] ?? PHASES[PHASES.length - 1]
 
     lerpC(A.bg, B.bg, t, scene.background as THREE.Color)
     lerpC(A.fog, B.fog, t, fogRef.current.color)
